@@ -121,11 +121,8 @@ O vídeo de demonstração está disponível no repositório:
 Se o GitHub não exibir o player, basta abrir o arquivo diretamente ou baixá-lo.
 
 ## Prévia da demonstração
-
-Se quiser destacar melhor a demonstração no README, use uma imagem de capa clicável do vídeo:
-
 ```md
-[
+[Abrir demonstração em vídeo](./Kooha-2026-05-05-05-19-57.webm)
 ```
 
 ## Links úteis
