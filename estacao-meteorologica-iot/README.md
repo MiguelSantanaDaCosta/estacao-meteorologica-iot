@@ -1,208 +1,100 @@
-# 🌦️ Estação Meteorológica IoT — ESP32 + MQTT + Node-RED
+# Estação Meteorológica IoT
 
-![IoT](https://img.shields.io/badge/IoT-ESP32-blue)
-![MQTT](https://img.shields.io/badge/MQTT-HiveMQ-green)
-![Node-RED](https://img.shields.io/badge/Node--RED-4.1.8-red)
-![Dashboard](https://img.shields.io/badge/Dashboard-Realtime-orange)
-![Status](https://img.shields.io/badge/Status-Online-brightgreen)
+Este projeto é uma estação meteorológica IoT baseada em ESP32 com MicroPython, desenvolvida para coletar dados de sensores, exibir informações em um OLED e publicar leituras via MQTT para o HiveMQ Cloud. Os dados também podem ser consumidos no Node-RED para visualização em dashboard e análise em tempo real.
 
----
+O objetivo do projeto é integrar hardware embarcado, comunicação MQTT, simulação no Wokwi e visualização de dados em uma arquitetura modular e fácil de expandir.
 
-## 📌 Visão Geral
+## Sobre o projeto
 
-Sistema de monitoramento ambiental em tempo real utilizando ESP32 (Wokwi), MQTT (HiveMQ Cloud) e Node-RED Dashboard.
+A estação lê temperatura, umidade, luminosidade e gás, organiza os valores em JSON e envia as mensagens para um tópico MQTT. No firmware, o código foi estruturado com orientação a objetos para separar responsabilidades e facilitar manutenção, testes e evolução futura do sistema.
 
----
+Além da comunicação com a nuvem, o ESP32 exibe dados no display OLED e permite alternar telas por botões físicos. No Node-RED, os mesmos dados podem ser tratados e exibidos em painéis de monitoramento.
 
-## 🧠 Arquitetura
+## O que o sistema faz
 
-ESP32 (Wokwi) → MQTT → HiveMQ Cloud → Node-RED → Dashboard
+- Lê sensores ambientais.
+- Calcula estados e alertas.
+- Exibe informações no OLED.
+- Publica dados em MQTT.
+- Recebe os dados no Node-RED.
+- Permite simulação no Wokwi.
+- Pode ser adaptado para hardware real.
 
----
+## Documentação do projeto
 
-## 📊 Sensores
+A documentação foi dividida por assunto para facilitar o estudo e a manutenção:
 
-- Temperatura (°C)
-- Umidade (%)
-- Luminosidade (lux)
-- Gás (ppm)
+- [Fluxo de dados](./docs/fluxo-dados.md)
+- [Explicação dos sensores](./docs/explicacao-sensores.md)
+- [Requisitos funcionais e não funcionais](./docs/requisitos.md)
+- [Arquitetura do código](./docs/arquitetura.png)
+- [Tópicos MQTT](./mqtt/topics.md)
+- [Node-RED](./node-red/README.md)
+- [Wokwi / ESP32](./wokwi-esp32/README.md)
 
----
+## Estrutura do repositório
 
-## 🚨 Alertas do Sistema
-
-- ≥ 38°C → 🔥 Crítico
-- ≥ 3500 ppm gás → ☠️ Perigoso
-- Combinação → 🚨 Alerta Geral
-- Normal → OK
-
----
-
-## 🖥️ Dashboard
-
-- Gauges (temperatura e umidade)
-- Donut (gás)
-- Compass (luminosidade)
-- Status de conforto
-- Qualidade do ar
-- Toast alerts
-
----
-
-## ⚙️ Tecnologias
-
-- ESP32 (Wokwi)
-- MQTT (HiveMQ Cloud)
-- Node-RED 4.1.8
-- node-red-dashboard 3.6.6
-- @flowfuse/node-red-dashboard 1.30.2
-- Node.js 18+
-
----
-
-## 📦 Instalação
-
-```bash
-npm install node-red-dashboard
-npm install @flowfuse/node-red-dashboard
-npm install node-red-contrib-uibuilder
-npm install node-red-node-ui-table
-
-📡 MQTT
-Broker: HiveMQ Cloud
-Porta: 8883 (TLS)
-Topic: besp32miguelestacao
-Payload
-{
-  "temperatura": 24,
-  "umidade": 40,
-  "luminosidade": 1000,
-  "gas": 1200
-}
-🧪 Execução
-ESP32 (Wokwi)
-Simular envio MQTT
-Node-RED
-Importar flow.json
-Instalar dependências
-Rodar dashboard
-Dashboard
-http://localhost:1880/ui
-📁 Estrutura
-estacao-iot/
-├── wokwi/
-├── node-red/
-├── mqtt/
+```text
+estacao-meteorologica-iot/
 ├── docs/
-└── README.md
-📈 Funcionalidades
-Tempo real
-Dashboard web
-Alertas automáticos
-Processamento MQTT
-Visualização de sensores# 🌦️ Estação Meteorológica IoT — ESP32 + MQTT + Node-RED
-
-![IoT](https://img.shields.io/badge/IoT-ESP32-blue)
-![MQTT](https://img.shields.io/badge/MQTT-HiveMQ-green)
-![Node-RED](https://img.shields.io/badge/Node--RED-4.1.8-red)
-![Dashboard](https://img.shields.io/badge/Dashboard-Realtime-orange)
-![Status](https://img.shields.io/badge/Status-Online-brightgreen)
-
----
-
-## 📌 Visão Geral
-
-Sistema de monitoramento ambiental em tempo real utilizando ESP32 (Wokwi), MQTT (HiveMQ Cloud) e Node-RED Dashboard.
-
----
-
-## 🧠 Arquitetura
-
-ESP32 (Wokwi) → MQTT → HiveMQ Cloud → Node-RED → Dashboard
-
----
-
-## 📊 Sensores
-
-- Temperatura (°C)
-- Umidade (%)
-- Luminosidade (lux)
-- Gás (ppm)
-
----
-
-## 🚨 Alertas do Sistema
-
-- ≥ 38°C → 🔥 Crítico
-- ≥ 3500 ppm gás → ☠️ Perigoso
-- Combinação → 🚨 Alerta Geral
-- Normal → OK
-
----
-
-## 🖥️ Dashboard
-
-- Gauges (temperatura e umidade)
-- Donut (gás)
-- Compass (luminosidade)
-- Status de conforto
-- Qualidade do ar
-- Toast alerts
-
----
-
-## ⚙️ Tecnologias
-
-- ESP32 (Wokwi)
-- MQTT (HiveMQ Cloud)
-- Node-RED 4.1.8
-- node-red-dashboard 3.6.6
-- @flowfuse/node-red-dashboard 1.30.2
-- Node.js 18+
-
----
-
-## 📦 Instalação
-
-```bash
-npm install node-red-dashboard
-npm install @flowfuse/node-red-dashboard
-npm install node-red-contrib-uibuilder
-npm install node-red-node-ui-table
-
-
-📡 MQTT
-Broker: HiveMQ Cloud
-Porta: 8883 (TLS)
-Topic: besp32miguelestacao
-Payload
-{
-  "temperatura": 24,
-  "umidade": 40,
-  "luminosidade": 1000,
-  "gas": 1200
-}
-🧪 Execução
-ESP32 (Wokwi)
-Simular envio MQTT
-Node-RED
-Importar flow.json
-Instalar dependências
-Rodar dashboard
-Dashboard
-http://localhost:1880/ui
-📁 Estrutura
-estacao-iot/
-├── wokwi/
-├── node-red/
 ├── mqtt/
-├── docs/
-└── README.md
-📈 Funcionalidades
-Tempo real
-Dashboard web
-Alertas automáticos
-Processamento MQTT
-Visualização de sensores
+├── node-red/
+├── wokwi-esp32/
+├── mostrando.mp4
+├── README.md
+└── LICENSE
+```
 
+## Tecnologias usadas
 
+- ESP32
+- MicroPython
+- Wokwi
+- MQTT
+- HiveMQ Cloud
+- Node-RED
+- SSD1306 OLED
+- DHT22
+- LDR
+- MQ2
+- Python orientado a objetos
+
+## Como o projeto funciona
+
+1. Os sensores coletam os dados do ambiente.
+2. O ESP32 lê e processa as informações.
+3. O firmware monta um JSON com os dados.
+4. O JSON é publicado no tópico MQTT.
+5. O Node-RED recebe e trata os dados.
+6. O display OLED mostra o estado local do sistema.
+
+## Arquitetura do software
+
+O código foi organizado em classes para separar claramente as responsabilidades:
+
+- inicialização de hardware;
+- leitura dos sensores;
+- cálculos e regras de estado;
+- coleta de dados;
+- conexão MQTT;
+- controle do display.
+
+Essa estrutura reduz acoplamento, melhora legibilidade e facilita a evolução do projeto em cenários embarcados.
+
+## Demonstração
+
+O vídeo de demonstração do projeto está disponível localmente no repositório:
+
+[Assistir demonstração](./mostrando.mp4)
+
+## Links úteis
+
+- [Wokwi](https://wokwi.com/projects/463136220390971393)
+- [Documentação do Wokwi](https://docs.wokwi.com)
+- [Node-RED](https://nodered.org/)
+- [HiveMQ Cloud](https://www.hivemq.com/mqtt-cloud-broker/)
+- [MicroPython](https://docs.micropython.org/)
+
+## Licença
+
+Este projeto está licenciado sob os termos do arquivo `LICENSE`.
