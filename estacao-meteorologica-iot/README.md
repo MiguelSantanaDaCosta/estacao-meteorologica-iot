@@ -1,38 +1,42 @@
 # Estação Meteorológica IoT
 
-Este projeto é uma estação meteorológica IoT baseada em ESP32 com MicroPython, desenvolvida para coletar dados de sensores, exibir informações em um OLED e publicar leituras via MQTT para o HiveMQ Cloud. Os dados também podem ser consumidos no Node-RED para visualização em dashboard e análise em tempo real.
+Este projeto é uma estação meteorológica IoT desenvolvida com ESP32, MicroPython, MQTT, Node-RED e Wokwi. Ele coleta dados de temperatura, umidade, luminosidade e gás, trata as informações no firmware e envia tudo para o broker HiveMQ Cloud, onde o Node-RED pode consumir, processar e exibir os dados em um dashboard.
 
-O objetivo do projeto é integrar hardware embarcado, comunicação MQTT, simulação no Wokwi e visualização de dados em uma arquitetura modular e fácil de expandir.
+O objetivo do projeto é demonstrar uma arquitetura completa de IoT, desde a simulação até a integração com a nuvem, incluindo visualização local no OLED, publicação MQTT e tratamento dos dados em um fluxo modular e fácil de expandir.
 
 ## Sobre o projeto
 
-A estação lê temperatura, umidade, luminosidade e gás, organiza os valores em JSON e envia as mensagens para um tópico MQTT. No firmware, o código foi estruturado com orientação a objetos para separar responsabilidades e facilitar manutenção, testes e evolução futura do sistema.
+A estação foi criada para monitorar o ambiente em tempo real e servir como base para projetos embarcados mais completos. O ESP32 faz a leitura dos sensores, monta um JSON com os dados, publica no tópico MQTT e também mostra o estado do sistema em um display OLED. O Node-RED recebe essas mensagens e pode transformar os dados em indicadores, gráficos e alertas.
 
-Além da comunicação com a nuvem, o ESP32 exibe dados no display OLED e permite alternar telas por botões físicos. No Node-RED, os mesmos dados podem ser tratados e exibidos em painéis de monitoramento.
+O firmware foi estruturado em orientação a objetos para separar responsabilidades, melhorar a manutenção e facilitar a criação de novas funcionalidades. Essa abordagem é útil em embarcados porque reduz acoplamento, organiza melhor o fluxo e torna o código mais legível.
 
 ## O que o sistema faz
 
-- Lê sensores ambientais.
-- Calcula estados e alertas.
-- Exibe informações no OLED.
-- Publica dados em MQTT.
+- Lê temperatura e umidade com o DHT22.
+- Lê luminosidade com o LDR.
+- Lê gás com o sensor MQ2.
+- Mostra informações no display OLED.
+- Permite trocar telas por botões físicos.
+- Publica os dados via MQTT.
 - Recebe os dados no Node-RED.
-- Permite simulação no Wokwi.
-- Pode ser adaptado para hardware real.
+- Pode ser simulado no Wokwi.
+- Pode ser adaptado para um ESP32 físico.
 
-## Documentação do projeto
+## Tecnologias usadas
 
-A documentação foi dividida por assunto para facilitar o estudo e a manutenção:
+- ESP32
+- MicroPython
+- MQTT
+- HiveMQ Cloud
+- Node-RED
+- Wokwi
+- SSD1306 OLED
+- DHT22
+- LDR
+- MQ2
+- Python orientado a objetos
 
-- [Fluxo de dados](./docs/fluxo-dados.md)
-- [Explicação dos sensores](./docs/explicacao-sensores.md)
-- [Requisitos funcionais e não funcionais](./docs/requisitos.md)
-- [Arquitetura do código](./docs/arquitetura.png)
-- [Tópicos MQTT](./mqtt/topics.md)
-- [Node-RED](./node-red/README.md)
-- [Wokwi / ESP32](./wokwi-esp32/README.md)
-
-## Estrutura do repositório
+## Estrutura do projeto
 
 ```text
 estacao-meteorologica-iot/
@@ -45,47 +49,85 @@ estacao-meteorologica-iot/
 └── LICENSE
 ```
 
-## Tecnologias usadas
+## Documentação interna
 
-- ESP32
-- MicroPython
-- Wokwi
-- MQTT
-- HiveMQ Cloud
-- Node-RED
-- SSD1306 OLED
-- DHT22
-- LDR
-- MQ2
-- Python orientado a objetos
+Cada parte do projeto foi separada em arquivos próprios para facilitar o estudo:
 
-## Como o projeto funciona
+- [Fluxo de dados](./docs/fluxo-dados.md)
+- [Explicação dos sensores](./docs/explicacao-sensores.md)
+- [Requisitos funcionais e não funcionais](./docs/requisitos.md)
+- [Tópicos MQTT](./mqtt/topics.md)
+- [Node-RED](./node-red/README.md)
+- [Wokwi / ESP32](./wokwi-esp32/README.md)
 
-1. Os sensores coletam os dados do ambiente.
-2. O ESP32 lê e processa as informações.
-3. O firmware monta um JSON com os dados.
-4. O JSON é publicado no tópico MQTT.
-5. O Node-RED recebe e trata os dados.
-6. O display OLED mostra o estado local do sistema.
+## Como instalar e executar
 
-## Arquitetura do software
+### No Wokwi
 
-O código foi organizado em classes para separar claramente as responsabilidades:
+1. Abra o projeto no Wokwi.
+2. Verifique o arquivo `diagram.json`.
+3. Abra o `main.py`.
+4. Execute a simulação.
+5. Observe as leituras no OLED e o envio via MQTT.
 
-- inicialização de hardware;
-- leitura dos sensores;
-- cálculos e regras de estado;
-- coleta de dados;
-- conexão MQTT;
-- controle do display.
+### Em um ESP32 real
 
-Essa estrutura reduz acoplamento, melhora legibilidade e facilita a evolução do projeto em cenários embarcados.
+1. Baixe o firmware MicroPython para ESP32.
+2. Grave o firmware na placa.
+3. Envie os arquivos `main.py` e `ssd1306.py`.
+4. Configure WiFi e MQTT.
+5. Conecte os sensores conforme o diagrama.
+6. Reinicie a placa e acompanhe a saída serial.
+
+### No Node-RED
+
+1. Abra o Node-RED.
+2. Importe o `flow.json`.
+3. Configure o broker HiveMQ Cloud.
+4. Faça o deploy.
+5. Verifique os dados chegando pelo tópico `besp32miguelestacao`.
+
+## Fluxo geral do sistema
+
+1. Os sensores capturam os dados do ambiente.
+2. O ESP32 lê e organiza as informações.
+3. Os dados são convertidos para JSON.
+4. O payload é publicado em MQTT.
+5. O Node-RED consome o tópico.
+6. Os dados são exibidos e analisados.
+7. O OLED mostra o estado local da estação.
+
+## Arquitetura do código
+
+O código foi dividido em classes para manter cada responsabilidade isolada:
+
+- `HardwareConfig` inicializa os periféricos.
+- `SensorBase` define a interface dos sensores.
+- `SensorDHT`, `SensorLDR` e `SensorMQ2` fazem a leitura dos sensores.
+- `CalculadoraClima` calcula estados e classificações.
+- `DataCollector` reúne os dados.
+- `MQTTManager` gerencia conexão e envio.
+- `DisplayManager` controla o OLED.
+- `main()` coordena toda a execução.
+
+Essa arquitetura foi escolhida porque favorece manutenção, reaproveitamento e expansão. Em vez de concentrar tudo em um único bloco, cada classe cuida de uma parte do sistema, o que facilita corrigir, testar e crescer o projeto.
 
 ## Demonstração
 
-O vídeo de demonstração do projeto está disponível localmente no repositório:
+O vídeo de demonstração está disponível no repositório:
 
-[Assistir demonstração](./mostrando.mp4)
+[Baixar ou assistir o vídeo](./mostrando.mp4)
+[![Demonstração do projeto](./mqtt/2026-05-05-025652_hyprshot.png)](./mostrando.mp4)
+
+Se o GitHub não exibir o player, basta abrir o arquivo diretamente ou baixá-lo.
+
+## Prévia da demonstração
+
+Se quiser destacar melhor a demonstração no README, use uma imagem de capa clicável do vídeo:
+
+```md
+[
+```
 
 ## Links úteis
 
