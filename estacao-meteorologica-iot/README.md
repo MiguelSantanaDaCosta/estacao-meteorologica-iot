@@ -116,8 +116,7 @@ Essa arquitetura foi escolhida porque favorece manutenção, reaproveitamento e 
 
 O vídeo de demonstração está disponível no repositório:
 
-[Baixar ou assistir o vídeo](./mostrando.mp4)
-[![Demonstração do projeto](./mqtt/2026-05-05-025652_hyprshot.png)](./mostrando.mp4)
+[Abrir demonstração em vídeo](./Kooha-2026-05-05-05-19-57.webm)
 
 Se o GitHub não exibir o player, basta abrir o arquivo diretamente ou baixá-lo.
 
