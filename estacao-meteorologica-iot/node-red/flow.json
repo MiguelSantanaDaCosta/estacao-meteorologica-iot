@@ -1,22 +1,202 @@
 [
     {
-        "id": "cdbfc7144dfb78d0",
-        "type": "mqtt in",
-        "z": "c06037e233e49bb7",
-        "name": "ESP32",
-        "topic": "besp32miguelestacao",
-        "qos": "1",
-        "datatype": "auto",
-        "broker": "hive",
-        "inputs": 0,
-        "x": 70,
+        "id": "c95b05894ea03a5b",
+        "type": "debug",
+        "z": "eb98858c2433a61a",
+        "name": "DEBUG MQTT",
+        "active": true,
+        "tosidebar": true,
+        "complete": "payload",
+        "x": 380,
         "y": 320,
+        "wires": []
+    },
+    {
+        "id": "e5121a2e4ab88b3c",
+        "type": "function",
+        "z": "eb98858c2433a61a",
+        "name": "Processar dados",
+        "func": "let d = msg.payload;\nif (typeof d === \"string\") d = JSON.parse(d);\n\nlet temp = Number(d.temperatura);\nlet hum = Number(d.umidade);\nlet luz = Number(d.luminosidade);\nlet gas = Number(d.gas);\n\n// MESMA LÓGICA DO ESP32\nlet conforto = temp - (0.55 - 0.0055 * hum) * (temp - 14.5);\n\nlet estadoTemp = \"FRIO\";\nif (temp >= 18 && temp < 30) estadoTemp = \"OK\";\nelse if (temp >= 30) estadoTemp = \"QUENTE\";\n\nlet estadoGas = \"BOM\";\nif (gas >= 1000 && gas < 3000) estadoGas = \"MODERADO\";\nelse if (gas >= 3000) estadoGas = \"RUIM\";\n\nlet estadoLuz = \"BAIXA\";\nif (luz >= 1000 && luz < 3000) estadoLuz = \"MEDIA\";\nelse if (luz >= 3000) estadoLuz = \"ALTA\";\n\nlet ar = \"AR BOM\";\nif (gas >= 1000 && gas < 3000) ar = \"AR MODERADO\";\nelse if (gas >= 3000) ar = \"AR RUIM\";\n\n// ALERTAS \nlet alerta = \"SISTEMA OK\";\nif (gas >= 3500 && temp >= 38) alerta = \"🚨 CRÍTICO TOTAL\";\nelse if (gas >= 3500) alerta = \"☠️ GÁS PERIGOSO\";\nelse if (temp >= 38) alerta = \"🔥 CALOR EXTREMO\";\n\nreturn [\n  { payload: temp },\n  { payload: hum },\n  { payload: luz },\n  { payload: gas },\n  { payload: conforto },\n  { payload: estadoTemp },\n  { payload: estadoGas },\n  { payload: estadoLuz },\n  { payload: ar },\n  { payload: alerta }\n];\n];",
+        "outputs": 7,
+        "timeout": "",
+        "noerr": 1,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 520,
         "wires": [
             [
-                "9595d22618c847af",
-                "7b51d6762495fd0f"
+                "b4e16d0785c1106f"
+            ],
+            [
+                "8e97c86bb9fc3092"
+            ],
+            [
+                "d99de7601ff33744"
+            ],
+            [
+                "8114d8d664a05d11"
+            ],
+            [
+                "57b3a27155024cdd"
+            ],
+            [
+                "118ce639b763950e"
+            ],
+            [
+                "ada47944e868abc6"
             ]
         ]
+    },
+    {
+        "id": "b4e16d0785c1106f",
+        "type": "ui_gauge",
+        "z": "eb98858c2433a61a",
+        "group": "29757b4502935468",
+        "title": "Temperatura",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 50,
+        "colors": [
+            "#3498db",
+            "#f1c40f",
+            "#e74c3c"
+        ],
+        "x": 810,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "8e97c86bb9fc3092",
+        "type": "ui_gauge",
+        "z": "eb98858c2433a61a",
+        "group": "29757b4502935468",
+        "title": "Umidade",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 100,
+        "colors": [
+            "#e67e22",
+            "#3498db",
+            "#2ecc71"
+        ],
+        "x": 960,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "d99de7601ff33744",
+        "type": "ui_gauge",
+        "z": "eb98858c2433a61a",
+        "group": "29757b4502935468",
+        "title": "Luminosidade",
+        "label": "lux",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 1024,
+        "colors": [
+            "#2c3e50",
+            "#f1c40f",
+            "#ffffff"
+        ],
+        "x": 900,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "8114d8d664a05d11",
+        "type": "ui_gauge",
+        "z": "eb98858c2433a61a",
+        "group": "29757b4502935468",
+        "gtype": "donut",
+        "title": "Gás",
+        "label": "ppm",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 5000,
+        "colors": [
+            "#2ecc71",
+            "#f39c12",
+            "#e74c3c"
+        ],
+        "x": 890,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "57b3a27155024cdd",
+        "type": "ui_text",
+        "z": "eb98858c2433a61a",
+        "group": "a46ba6f2bfc8ce29",
+        "label": "Conforto",
+        "format": "{{payload}}",
+        "x": 900,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "118ce639b763950e",
+        "type": "ui_text",
+        "z": "eb98858c2433a61a",
+        "group": "a46ba6f2bfc8ce29",
+        "label": "Qualidade do Ar",
+        "format": "{{payload}}",
+        "x": 920,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "ada47944e868abc6",
+        "type": "ui_toast",
+        "z": "eb98858c2433a61a",
+        "position": "top right",
+        "displayTime": "5",
+        "outputs": 0,
+        "name": "Alertas",
+        "x": 920,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "da5f3c6b5c5cf261",
+        "type": "mqtt in",
+        "z": "eb98858c2433a61a",
+        "name": "",
+        "topic": "besp32miguelestacao",
+        "qos": "1",
+        "datatype": "auto-detect",
+        "broker": "hive",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 460,
+        "wires": [
+            [
+                "e5121a2e4ab88b3c",
+                "c95b05894ea03a5b"
+            ]
+        ]
+    },
+    {
+        "id": "29757b4502935468",
+        "type": "ui_group",
+        "name": "Sensores",
+        "tab": "342f614a98bb56fb",
+        "order": 1,
+        "width": "6"
+    },
+    {
+        "id": "a46ba6f2bfc8ce29",
+        "type": "ui_group",
+        "name": "Status",
+        "tab": "342f614a98bb56fb",
+        "order": 2,
+        "width": "6"
     },
     {
         "id": "hive",
@@ -45,6 +225,19 @@
         "willMsg": {},
         "userProps": "",
         "sessionExpiry": ""
+    },
+    {
+        "id": "342f614a98bb56fb",
+        "type": "ui_tab",
+        "name": "Dashboard Clima",
+        "icon": "dashboard"
+    },
+    {
+        "id": "548caddad382ce43",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
     }
 ]
-
