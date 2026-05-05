@@ -1,0 +1,49 @@
+[
+    {
+        "id": "cdbfc7144dfb78d0",
+        "type": "mqtt in",
+        "z": "c06037e233e49bb7",
+        "name": "ESP32",
+        "topic": "besp32miguelestacao",
+        "qos": "1",
+        "datatype": "auto",
+        "broker": "hive",
+        "inputs": 0,
+        "x": 70,
+        "y": 320,
+        "wires": [
+            [
+                "9595d22618c847af",
+                "7b51d6762495fd0f"
+            ]
+        ]
+    },
+    {
+        "id": "hive",
+        "type": "mqtt-broker",
+        "name": "HiveMQ",
+        "broker": "3157a291b3a543f4825306043bdca95d.s1.eu.hivemq.cloud",
+        "port": "8883",
+        "tls": "",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": "120",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
