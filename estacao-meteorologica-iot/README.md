@@ -122,8 +122,7 @@ Se o GitHub não exibir o player, basta abrir o arquivo diretamente ou baixá-lo
 
 ## Prévia da demonstração
 ```md
-[Abrir demonstração em vídeo](./Kooha-2026-05-05-05-19-57.webm)
-```
+[./docs/demo.gif]```
 
 ## Links úteis
 
