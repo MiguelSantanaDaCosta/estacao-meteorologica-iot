@@ -1,9 +1,7 @@
-# emails.py
+# emails.py - VERSÃO FINAL CORRIGIDA (MicroPython)
 # =========================
 # SISTEMA DE RELATORIOS - ETAPA 2
 # =========================
-# Gerencia Google Sheets e Email SMTP para estacao meteorologica
-# Compatível com seu main.py atual
 
 from machine import Pin, ADC, I2C
 import time
@@ -14,11 +12,11 @@ import umail
 # =========================
 # CONFIGURAÇÕES
 # =========================
-SHEETS_URL = "https://script.google.com/macros/s/SEU_SCRIPT_ID/exec"
+SHEETS_URL = "url gerada"
 EMAIL_SMTP = "smtp.gmail.com"
 EMAIL_PORT = 465
 EMAIL_USER = "seuemail@gmail.com"
-EMAIL_SENHA_APP = "abcd-efgh-ijkl-mnop"  # App Password do Gmail
+EMAIL_SENHA_APP = "sua senha fraca"  
 
 # =========================
 # GOOGLE SHEETS
@@ -37,13 +35,14 @@ class GoogleSheets:
             
             if response.status_code == 200:
                 response.close()
+                print("Sheets OK")
                 return True
             response.close()
+            print("📊 Sheets falhou:", response.status_code)
             return False
         except Exception as e:
-            print("Sheets erro:", e)
+            print(" Sheets erro:", e)
             return False
-
 
 # =========================
 # EMAIL SMTP GMAIL
@@ -65,10 +64,8 @@ class EmailManager:
             smtp.login(self.email, self.senha_app)
             smtp.to("alessandrohoras@umc.br")
             
-            # Monta email completo
-            assunto = f"📊 Relatório Diário Estação - {data_ref}"
             corpo = f"""
-RELATÓRIO DIÁRIO - ESTAÇÃO METEOROLÓGICA
+RELATÓRIO DIÁRIO - ESTAÇÃO METEOROLÓGICA ESP32
 
 Data: {data_ref}
 Média Temperatura: {media_temp:.1f}°C
@@ -76,13 +73,12 @@ Média Umidade: {media_umid:.1f}%
 Total de Leituras: {total_leituras}
 
 Sistema funcionando normalmente!
-Estação ESP32 Miguel
+Estação ESP32 Miguel - ETAPA 2
             """
             
             smtp.write(f"From: {self.email}\r\n")
-            smtp.write(f"Subject: {assunto}\r\n")
-            smtp.write("Content-Type: text/plain; charset=utf-8\r\n")
-            smtp.write("\r\n")
+            smtp.write(f"Subject: Relatório Diário {data_ref}\r\n")
+            smtp.write("Content-Type: text/plain; charset=utf-8\r\n\r\n")
             smtp.write(corpo)
             
             smtp.send()
@@ -94,7 +90,6 @@ Estação ESP32 Miguel
             print("❌ Email erro:", e)
             return False
 
-
 # =========================
 # CONTADOR DIÁRIO
 # =========================
@@ -104,48 +99,57 @@ class DiarioManager:
     def __init__(self):
         self.soma_temp = 0.0
         self.soma_umid = 0.0
+        self.soma_gas = 0.0
+        self.soma_lumi = 0.0
         self.total_leituras = 0
         self.ultimo_dia = None
 
-    def processar_leitura(self, temp, umid):
+    def processar_leitura(self, temp, umid, gas, lumi):
         """Processa nova leitura e verifica se é novo dia"""
         agora = time.localtime()
-        dia_atual = agora[2]  # Dia do mês (1-31)
+        dia_atual = agora[2]  # Dia do mês
 
         # Primeiro dia ou novo dia?
         if self.ultimo_dia is None or dia_atual != self.ultimo_dia:
             relatorio = self._gerar_relatorio()
             
+            # MICROPYTHON - Formato manual
+            data_ref = "%02d/%02d/%04d" % (agora[2], agora[1], agora[0])
+            
             # Reseta para novo dia
             self.soma_temp = 0.0
             self.soma_umid = 0.0
+            self.soma_gas  = 0.0
+            self.soma_lumi = 0.0
             self.total_leituras = 0
             self.ultimo_dia = dia_atual
             
             return {
                 "nova_leitura": True,
                 "relatorio": relatorio,
-                "data_ref": time.strftime("%d/%m/%Y", agora)
+                "data_ref": data_ref
             }
         
         # Acumula para o dia atual
         self.soma_temp += temp
         self.soma_umid += umid
+        self.soma_gas  += gas
+        self.soma_lumi += lumi
         self.total_leituras += 1
         
         return {"nova_leitura": True}
 
     def _gerar_relatorio(self):
-        """Gera dados do relatório (chamado no fim do dia)"""
+        """Gera dados do relatório"""
         if self.total_leituras == 0:
             return None
-            
         return {
             "media_temp": self.soma_temp / self.total_leituras,
             "media_umid": self.soma_umid / self.total_leituras,
+            "media_gas" : self.soma_gas  / self.total_leituras,
+            "media_lumi": self.soma_lumi / self.total_leituras,
             "total_leituras": self.total_leituras
         }
-
 
 # =========================
 # GERENCIADOR COMPLETO
@@ -159,21 +163,25 @@ class RelatoriosManager:
         self.diario = DiarioManager()
 
     def processar_dados(self, dados_completo):
-        """Processa uma leitura completa (chamar no loop principal)"""
+        """Processa uma leitura completa"""
         temp = dados_completo["temperatura"]
         umid = dados_completo["umidade"]
+        gas  = dados_completo["gas"]
+        lumi = dados_completo["luminosidade"]
         
-        # 1. Processa contador diário
-        resultado = self.diario.processar_leitura(temp, umid)
+        # 1. Contador diário
+        resultado = self.diario.processar_leitura(temp, umid, gas, lumi)
         
-        # 2. Sempre envia para Sheets
+        # 2. Sheets 
         sheets_ok = self.sheets.enviar_dados({
             "timestamp": dados_completo["timestamp"],
             "temperatura": temp,
-            "umidade": umid
+            "umidade": umid,
+            "luminosidade": dados_completo["luminosidade"],  
+            "gas": dados_completo["gas"]  
         })
         
-        # 3. Se tem relatório pronto, envia email
+        # 3. Email (fim do dia)
         if "relatorio" in resultado and resultado["relatorio"]:
             relatorio = resultado["relatorio"]
             self.email.enviar_relatorio_diario(
@@ -187,4 +195,3 @@ class RelatoriosManager:
             "sheets_ok": sheets_ok,
             "tem_relatorio": "relatorio" in resultado
         }
-

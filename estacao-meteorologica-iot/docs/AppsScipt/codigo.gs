@@ -1,26 +1,15 @@
-text
-# 📊 Google Sheets - Etapa 2
-
-## Instruções Rápidas
-
-1. **sheets.google.com** → Nova planilha
-2. **Extensões → Apps Script**
-3. **Apague tudo** → Cole código abaixo
-4. **Ctrl+S** → **Deploy → Nova implantação**
-5. **Copie URL** `/exec` → `emails.py`
-
-## Código Completo (Code.gs)
-
-```javascript
 function doPost(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSheet();
     var data = JSON.parse(e.postData.contents);
     
+    //  ESP32)
     var timestamp1970 = data.timestamp + 946684800;
     var dataHora = new Date(timestamp1970 * 1000);
+    
     var ultimaLinha = sheet.getLastRow() + 1;
     
+    //  COLUNAS COMPLETAS
     sheet.getRange(ultimaLinha, 1, 1, 5).setValues([[
       dataHora,
       parseFloat(data.temperatura),
@@ -29,8 +18,10 @@ function doPost(e) {
       parseFloat(data.luminosidade || 0)
     ]]);
     
+    // Formatação
     sheet.getRange(ultimaLinha, 1).setNumberFormat("dd/mm/yyyy hh:mm:ss");
     
+    // CABEÇALHOS 
     if (ultimaLinha == 1) {
       sheet.getRange(1, 1, 1, 5).setValues([[
         "Data/Hora", "Temperatura°C", "Umidade%", "Gas", "Luminosidade"
@@ -51,18 +42,21 @@ function atualizarResumo(sheet) {
   var ultimaLinha = sheet.getLastRow();
   if (ultimaLinha < 2) return;
   
+  // MÉDIA TOTAL (acumulada)
   var dados = sheet.getRange("B2:C" + ultimaLinha).getValues();
-  var temps = dados.map(r=>r).filter(t=>t>0);
-  var umids = dados.map(r=>r).filter(u=>u>0);[1]
+  var temps = dados.map(r=>r[0]).filter(t=>t>0);
+  var umids = dados.map(r=>r[1]).filter(u=>u>0);
   
+  //  TOTAL
   sheet.getRange("A7").setValue("📊 TOTAL");
   sheet.getRange("B7").setValue((temps.reduce((a,b)=>a+b)/temps.length || 0).toFixed(1)+"°C");
   sheet.getRange("C7").setValue((umids.reduce((a,b)=>a+b)/umids.length || 0).toFixed(1)+"%");
   sheet.getRange("D7").setValue("("+temps.length+" leituras)");
   
+  // ÚLTIMA HORA
   var horaAtras = new Date(Date.now() - 60*60*1000);
   var ultHora = sheet.getRange("A2:A" + ultimaLinha).getValues()
-    .filter(r=>new Date(r) > horaAtras).length;
+    .filter(r=>new Date(r[0]) > horaAtras).length;
   sheet.getRange("A8").setValue("⏰ ÚLTIMA HORA");
   sheet.getRange("D8").setValue("("+ultHora+" leituras)");
 }
@@ -72,7 +66,7 @@ function testarPost() {
     method: 'POST',
     contentType: 'application/json',
     payload: JSON.stringify({
-      timestamp: Math.floor(Date.now()/1000)-946684800,
+      timestamp: Math.floor(Date.now()/1000)-946684800, // Simula ESP32
       temperatura: 24.5,
       umidade: 58.2,
       gas: 3500,
@@ -80,53 +74,3 @@ function testarPost() {
     })
   });
 }
-```
-
-## Teste
-Apps Script → ▶️ testarPost()
-Planilha linha 2 → OK!
-
-text
-
-## emails.py
-SHEETS_URL = "https://script.google.com/macros/s/SEU_ID/exec"
-
-text
-
-## Resultado ESP32
-Terminal: Sheets OK
-Planilha: 5 colunas + 📊 TOTAL + ⏰ ÚLTIMA HORA
-
-text
-docs/04-email-smtp.md - Puro
-text
-# 📧 Email SMTP Gmail - Desafio Extra
-
-## Configuração (2min)
-
-1. **myaccount.google.com** → **Segurança** → **Senhas de app**
-2. ✅ **2FA ativado**
-3. **Mail** → Copie: `abcd efgh ijkl mnop`
-
-## emails.py
-```python
-EMAIL_SMTP = "smtp.gmail.com"
-EMAIL_PORT = 465
-EMAIL_USER = "seu@gmail.com"
-EMAIL_SENHA_APP = "abcd efgh ijkl mnop"
-```
-
-## Teste Rápido
-**DiarioManager.py linha ~85:**
-```python
-dia_atual = 1  # Force email (3 leituras!)
-```
-
-**Terminal:**
-✅ Email enviado!
-
-text
-**Destinatário:** alessandrohoras@umc.br
-
-**Produção:** `dia_atual = agora[2]`
-
